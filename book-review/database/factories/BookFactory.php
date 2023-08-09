@@ -21,7 +21,12 @@ class BookFactory extends Factory
             // we set the created at and updated at manually
             // adding books and reviews in the last 2 years
             'created_at' => fake()->dateTimeBetween('-2 years'),
-            'updated_at' => fake()->dateTimeBetween('created_at', 'now'),
+            // function (array $attributes) { ... }: This is an anonymous function (also called a closure) that defines how the value for the updated_at column should be generated. The function takes an array of $attributes as a parameter. This array typically contains the attribute values of the model that are already defined. In this case, it seems like the function is using the created_at attribute's value.
+
+            // dateTimeBetween($attributes['created_at'], 'now'): This method call generates a random date and time between two given dates. The first argument is the lower bound (the created_at value from the $attributes array), and the second argument is the upper bound (which is 'now', representing the current date and time).
+            'updated_at' => function (array $attributes) {
+                return fake()->dateTimeBetween($attributes['created_at'], 'now');
+            }
 
         ];
     }
