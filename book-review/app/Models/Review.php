@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Review extends Model
 {
     use HasFactory;
-    // defining relationship
 
+    protected $fillable = ['review', 'rating'];
+
+    // defining relationship
     public function book()
     {
         return $this->belongsTo(Book::class);
