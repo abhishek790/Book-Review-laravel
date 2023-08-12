@@ -3,7 +3,14 @@
 @section('content')
     <h1 class = "mb-10 text-2xl">Books</h1>
 
-    <form action=""></form>
+    <form action="{{route('books.index')}}" method= "GET">
+      {{-- old value if it was sent before,so if we have sent this form before this input would be populated with the previous value --}}
+      <input type="text" name="title" placeholder="Search by title" value = "{{request('title')}}">
+      <button type="submit" class="btn">Search</button>
+      {{-- this would be used to clear the form,so simplest way to clear the form would be to add a link to a page that will not contain any query --}}
+      <a href="{{route('books.index')}}">Clear</a>
+
+    </form>
 
     <ul>
         @forelse($books as $book)
@@ -12,16 +19,18 @@
               <div
                 class="flex flex-wrap items-center justify-between">
                 <div class="w-full flex-grow sm:w-auto">
-                    {{-- we can just pass the book variable for it as it only has one parameter and laravel is smart enough that it will know that this one has one parameter,it will know that it needs to pass a book ID because this is an object here and it has this id property--}}
+                    
                   <a href="{{route('books.show', $book)}}" class="book-title">{{$book->title}}</a>
                   <span class="book-author">{{$book->author}}</span>
                 </div>
                 <div>
                   <div class="book-rating">
-                    {{$book->rating}}
+                   
+                    {{number_format($book->reviews_avg_rating, 1)}}
                   </div>
                   <div class="book-review-count">
-                    out of 5 reviews
+                   
+                    out of {{$book->reviews_count}} {{Str::plural('review',$book->reviews_count)}}
                   </div>
                 </div>
               </div>
@@ -29,6 +38,12 @@
           </li>
         
         @empty
+          <li class = "mb-4">
+            <div class ="empty-book-item">
+              <p class ="empty-text">No books found </p>
+              <a href="{{route('books.index')}}" class ="reset-link">Reset criteria</a>
+            </div>
+          </li>
         
         @endforelse
     </ul>
