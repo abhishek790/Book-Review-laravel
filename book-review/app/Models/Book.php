@@ -79,9 +79,16 @@ class Book extends Model
     }
 
     public function scopeHighestRatedLastMonth(Builder $query): Builder
-    { // sot the way it works is both query scopes, the popular query scope and highest rated query scope will get both the average rating and the count of rating.but the order in which you call those query scopes matters because they also add sorting
+    { // so the way it works is both query scopes, the popular query scope and highest rated query scope will get both the average rating and the count of rating.but the order in which you call those query scopes matters because they also add sorting and it matters in what order you add sorting because then the results will always be sorted by the first column you specified and the second or subsequent ones will only serve as tiebreakers
         return $query->highestRated(now()->subMonth(), now())
             ->popular(now()->subMonth(), now())->minReviews(2);
+
+    }
+
+    public function scopeHighestRatedLast6Month(Builder $query): Builder
+    {
+        return $query->highestRated(now()->subMonths(6), now())
+            ->popular(now()->subMonths(6), now())->minReviews(5);
 
     }
 

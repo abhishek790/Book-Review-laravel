@@ -15,15 +15,32 @@ class BookController extends Controller
 
     public function index(Request $request)
     {
-        //lets get the title and fetch it into a variable we use input() method and pass the name of the parameter which is title
+
 
         $title = $request->input('title');
+        // also giving default empty value
+        $filter = $request->input('filter', '');
+
         echo var_dump(request()->query());
+
         $books = Book::when($title, function ($query, $title) {
             // its the local query scope defined in Book model
             return $query->title($title);
-        })
-            ->get();
+        });
+        // here we run the query separately and in between those we would like to optionally do something with filtering or at least sort the book by the most recent ones
+
+        // match is similar to switch statement,but the diff is it lets you return a value
+        $books = match ($filter) {
+            // if filter value is same as key, you can run something like an arrow function or return a value
+            // resulting query will be returned back to books variable and then we can finally run it
+            'popular_last_month' => $books->popularLastMonth(),
+            'popular_last_6month' => $books->popularLast6Month(),
+            'highest_rated_last_month' => $books->highestRatedLastMonth(),
+            'highest_rated_last_6month' => $books->highestRatedLast6Month(),
+            default => $books->latest()
+        };
+
+        $books = $books->get();
 
         return view('books.index', ['books' => $books]);
     }
