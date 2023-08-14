@@ -2,15 +2,42 @@
 
 @section('content')
     <h1 class = "mb-10 text-2xl">Books</h1>
-
+    
     <form action="{{route('books.index')}}" method= "GET">
       {{-- old value if it was sent before,so if we have sent this form before this input would be populated with the previous value --}}
       <input type="text" name="title" placeholder="Search by title" value = "{{request('title')}}">
+      {{-- when a tab is clicked this parameter will be sent with other parameter as well separated by &  --}}
+      <input type="hidden" name="filter" value="{{request('filter')}}">
       <button type="submit" class="btn">Search</button>
       {{-- this would be used to clear the form,so simplest way to clear the form would be to add a link to a page that will not contain any query --}}
-      <a href="{{route('books.index')}}">Clear</a>
+      <a href="{{route('books.index')}}" class="btn">Clear</a>
 
     </form>
+
+    <div class="filter-container mb-4 flex">
+      {{-- defining filter --}}
+      @php
+        // this array contains key which represent what has to be passed to the query parameters
+        $filters = [
+          ''=>'Latest',
+          'popular_last_month'=>'Popular Last Month',
+          'popular_last_6month'=>'Popular Last 6 Month',
+          'highest_rated_last_month'=>'Highest Rated Last Month',
+          'highest_rated_last_6month'=>'Highest Rated Last 6 Month',
+
+    ];
+    @endphp
+
+    @foreach($filters as $key => $label)
+    {{-- keeping all the other requests parameter when we go to any of those tab links so below is an array of all the query parameters that we pass so we can additionally add something to it this would be request query that would be an array of all the query parameters the request has,but since this always return an array and we are actually inside an array we will use a spread operator--}} 
+      <a href="{{route('books.index',[...request()->query(),'filter'=>$key])}}" 
+        class="{{request('filter') === $key || (request('filter') === null && $key === '') ? 'filter-item-active':'filter-item'}}">
+        {{$label}}  
+      </a>
+    @endforeach
+      
+      
+    </div>
 
     <ul>
         @forelse($books as $book)

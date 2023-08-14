@@ -62,5 +62,27 @@ class Book extends Model
 
     }
 
+    public function scopePopularLastMonth(Builder $query): Builder
+    { // here we create a new date and subtract a month from it using a method,and next date is now
+        // we will get all the book that are popular last month till now
+        return $query->popular(now()->subMonth(), now())
+            ->highestRated(now()->subMonth(), now())->minReviews(2);
+        // even though we don't really need to sort them by the rating we actually just want to get the actual average rating
+
+    }
+
+    public function scopePopularLast6Month(Builder $query): Builder
+    {
+        return $query->popular(now()->subMonths(6), now())
+            ->highestRated(now()->subMonths(6), now())->minReviews(5);
+
+    }
+
+    public function scopeHighestRatedLastMonth(Builder $query): Builder
+    { // sot the way it works is both query scopes, the popular query scope and highest rated query scope will get both the average rating and the count of rating.but the order in which you call those query scopes matters because they also add sorting
+        return $query->highestRated(now()->subMonth(), now())
+            ->popular(now()->subMonth(), now())->minReviews(2);
+
+    }
 
 }

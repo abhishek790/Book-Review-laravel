@@ -18,7 +18,7 @@ class BookController extends Controller
         //lets get the title and fetch it into a variable we use input() method and pass the name of the parameter which is title
 
         $title = $request->input('title');
-
+        echo var_dump(request()->query());
         $books = Book::when($title, function ($query, $title) {
             // its the local query scope defined in Book model
             return $query->title($title);
