@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Book;
 
+// use Illuminate\Support\Facades\Cache;
+
 class BookController extends Controller
 {
 
@@ -33,7 +35,12 @@ class BookController extends Controller
             default => $books->latest()
         };
 
-        $books = $books->get();
+        $cacheKey = 'books:' . $filter . ':' . $title;
+        echo $cacheKey;
+        $books = cache()->remember('books', 3600, function () use ($books) {
+            return $books->get();
+        });
+
 
         return view('books.index', ['books' => $books]);
     }
@@ -58,15 +65,14 @@ class BookController extends Controller
 
     public function show(Book $book)
     {
+        $cacheKey = 'book:' . $book->id;
+        $book = cache()->remember($cacheKey, 3600, fn() => $book->load([
+            'reviews' => fn($query) => $query->latest()
+        ]));
         return view(
             'books.show',
             [
-                'book' => $book->load([
-                    // we want reveiw in a specific order,this can be done by adding a value to this array 
-                    // we are working on a reviews relationship so i can call latest to sort it
-                    'reviews' => fn($query) => $query->latest(),
-                    //this is how you can load some additional relationship and then do something on them
-                ])
+                'book' => $book
             ]
         );
     }
