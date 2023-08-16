@@ -29,7 +29,7 @@
     @endphp
 
     @foreach($filters as $key => $label)
-    {{-- keeping all the other requests parameter when we go to any of those tab links so below is an array of all the query parameters that we pass so we can additionally add something to it this would be request query that would be an array of all the query parameters the request has,but since this always return an array and we are actually inside an array we will use a spread operator--}} 
+    
       <a href="{{route('books.index',[...request()->query(),'filter'=>$key])}}" 
         class="{{request('filter') === $key || (request('filter') === null && $key === '') ? 'filter-item-active':'filter-item'}}">
         {{$label}}  
@@ -54,6 +54,7 @@
                   <div class="book-rating">
                    
                     {{number_format($book->reviews_avg_rating, 1)}}
+                    <x-star-rating :rating="$book->reviews_avg_rating"/>
                   </div>
                   <div class="book-review-count">
                    
@@ -63,7 +64,7 @@
               </div>
             </div>
           </li>
-        
+          
         @empty
           <li class = "mb-4">
             <div class ="empty-book-item">
@@ -71,7 +72,12 @@
               <a href="{{route('books.index')}}" class ="reset-link">Reset criteria</a>
             </div>
           </li>
-        
+          
         @endforelse
+       
+        @isset($books)
+          {{$books->appends(request()->except('page'))->links()}}
+          @endisset
     </ul>
+    
 @endsection

@@ -23,22 +23,30 @@ class Book extends Model
         return $query->where('title', 'LIKE', '%' . $title . '%');
     }
 
+    public function scopeWithReviewsCount(Builder $query, $from = null, $to = null): Builder
+    {
+        return $query->withCount([
+            'reviews' => fn(Builder $q) => $this->dateRangeFilter($q, $from, $to)
+        ]);
+
+    }
+
+    public function scopeWithAverageRating(Builder $query, $from = null, $to = null)
+    {
+        return $query->withAvg([
+            'reviews' => fn(Builder $q) => $this->dateRangeFilter($q, $from, $to)
+        ], 'rating');
+    }
 
     public function scopePopular(Builder $query, $from = null, $to = null): Builder
     {
-        return $query->withCount([
-
-            'reviews' => fn(Builder $q) => $this->dateRangeFilter($q, $from, $to)
-
-        ])
+        return $query->withReviewsCount()
             ->orderBy('reviews_count', 'desc');
     }
 
     public function scopeHighestRated(Builder $query, $from = null, $to = null): Builder
     {
-        return $query->withAvg([
-            'reviews' => fn(Builder $q) => $this->dateRangeFilter($q, $from, $to)
-        ], 'rating')
+        return $query->withAverageRating()
             ->orderBy('reviews_avg_rating', 'desc');
     }
 
@@ -63,11 +71,11 @@ class Book extends Model
     }
 
     public function scopePopularLastMonth(Builder $query): Builder
-    { // here we create a new date and subtract a month from it using a method,and next date is now
-        // we will get all the book that are popular last month till now
+    {
+
         return $query->popular(now()->subMonth(), now())
             ->highestRated(now()->subMonth(), now())->minReviews(2);
-        // even though we don't really need to sort them by the rating we actually just want to get the actual average rating
+
 
     }
 
@@ -79,7 +87,7 @@ class Book extends Model
     }
 
     public function scopeHighestRatedLastMonth(Builder $query): Builder
-    { // so the way it works is both query scopes, the popular query scope and highest rated query scope will get both the average rating and the count of rating.but the order in which you call those query scopes matters because they also add sorting and it matters in what order you add sorting because then the results will always be sorted by the first column you specified and the second or subsequent ones will only serve as tiebreakers
+    {
         return $query->highestRated(now()->subMonth(), now())
             ->popular(now()->subMonth(), now())->minReviews(2);
 
@@ -90,6 +98,12 @@ class Book extends Model
         return $query->highestRated(now()->subMonths(6), now())
             ->popular(now()->subMonths(6), now())->minReviews(5);
 
+    }
+
+    protected static function booted()
+    {
+        static::updated(fn(Book $book) => cache()->forget('book:' . $book->id));
+        static::deleted(fn(Book $book) => cache()->forget('book:' . $book->id));
     }
 
 }
