@@ -4,20 +4,17 @@
     <h1 class = "mb-10 text-2xl">Books</h1>
     
     <form action="{{route('books.index')}}" method= "GET">
-      {{-- old value if it was sent before,so if we have sent this form before this input would be populated with the previous value --}}
+      
       <input type="text" name="title" placeholder="Search by title" value = "{{request('title')}}">
-      {{-- when a tab is clicked this parameter will be sent with other parameter as well separated by &  --}}
       <input type="hidden" name="filter" value="{{request('filter')}}">
       <button type="submit" class="btn">Search</button>
-      {{-- this would be used to clear the form,so simplest way to clear the form would be to add a link to a page that will not contain any query --}}
       <a href="{{route('books.index')}}" class="btn">Clear</a>
 
     </form>
 
     <div class="filter-container mb-4 flex">
-      {{-- defining filter --}}
       @php
-        // this array contains key which represent what has to be passed to the query parameters
+        
         $filters = [
           ''=>'Latest',
           'popular_last_month'=>'Popular Last Month',
