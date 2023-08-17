@@ -9,8 +9,6 @@
       <div class="book-rating flex items-center">
         <div class="mr-2 text-sm font-medium text-slate-700">
           {{ number_format($book->reviews_avg_rating, 1) }}
-          {{-- now you would use the component as a normal HTML tag just starting with X and there goes the lowercase name of you component
-            To pass the data to the component use the same name as property name set in contructor and before name use colon --}}
           <x-star-rating :rating="$book->reviews_avg_rating"/>
         </div>
         <span class="book-review-count text-sm text-gray-500">

@@ -38,26 +38,13 @@ class BookController extends Controller
 
         $cacheKey = 'books:' . $filter . ':' . $title;
 
-        $books = $books->paginate(10); //cache()->remember($cacheKey, 3600, function () use ($books) {
-        // return $books->paginate(10);
-        // });
+        $books = cache()->remember($cacheKey, 3600, function () use ($books) {
+            return $books->paginate(10);
+        });
 
 
         return view('books.index', ['books' => $books]);
     }
-
-
-    public function create()
-    {
-        //
-    }
-
-
-    public function store(Request $request)
-    {
-        //
-    }
-
 
 
     public function show(int $id)
@@ -74,20 +61,5 @@ class BookController extends Controller
     }
 
 
-    public function edit($id)
-    {
-        //
-    }
 
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-
-    public function destroy($id)
-    {
-        //
-    }
 }

@@ -9,14 +9,19 @@ class ReviewController extends Controller
 {
 
 
+    // to apply some middleware to a specific action for a resource controller, you will have to define a constructor
+    public function __construct()
+    {
+        $this->middleware('throttle:reviews')->only(['store']);
 
+    }
 
     public function create(Book $book)
     {
         return view('books.reviews.create', ['book' => $book]);
     }
 
-    // we need book as this is a scoped request
+
     public function store(Request $request, Book $book)
     {
         $data = $request->validate([
@@ -24,7 +29,6 @@ class ReviewController extends Controller
             'rating' => 'required|min:1|max:5|integer',
         ]);
 
-        // it will create a new instance of the review and automatically associate with this specific book,so to create the model has to have the properties you are passing fillable and we have already defined those properties
         $book->reviews()->create($data);
 
         return redirect()->route('books.show', $book);
